@@ -1,0 +1,21 @@
+package am2saude.api.consultas.DTOs.Validacoes;
+
+import am2saude.api.Infra.ValidacaoException;
+import am2saude.api.consultas.DTOs.ConsultaRepository;
+import am2saude.api.consultas.DTOs.DadosAgendamentoConsulta;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ValidaPacienteConsultaMesmoDia implements ValidaAgendamentoConsulta{
+    @Autowired
+    private ConsultaRepository repository;
+    public void validar(DadosAgendamentoConsulta dados){
+        var primeiroHorario = dados.data().withHour(7);
+        var ultimoHorario = dados.data().withHour(18);
+        var pacientePossuiOutraConsultaNoDia = repository.existsByPacienteIdAndDataBetween(dados.idPaciente(), primeiroHorario, ultimoHorario);
+        if (pacientePossuiOutraConsultaNoDia){
+            throw new ValidacaoException("Paciente ja possui consulta no dia a ser agendado");
+        }
+    }
+}
